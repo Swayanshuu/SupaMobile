@@ -63,12 +63,6 @@ final databaseMetadataProvider = FutureProvider.family<List<dynamic>, ({String p
       return [];
   }
 
-  try {
-    return await api.runQuery(arg.projectRef, query);
-  } catch (e) {
-    return [
-      {'name': 'Mock ${arg.entityType.substring(0, arg.entityType.length - 1)} 1', 'table': 'users', 'definition': 'SELECT 1'},
-    ];
-  }
+  return api.runQuery(arg.projectRef, query);
 });
 

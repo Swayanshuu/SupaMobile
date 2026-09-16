@@ -25,6 +25,7 @@ import 'features/tables/schema_screen.dart';
 import 'features/infrastructure/infrastructure_screen.dart';
 import 'features/database/database_sub_page.dart';
 import 'features/subscription/pricing_screen.dart';
+import 'features/settings/app_logs_screen.dart';
 import 'widgets/supa_bottom_nav.dart';
 import 'widgets/app_lock_wrapper.dart';
 import 'features/profile/profile_screen.dart';
@@ -126,6 +127,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/feedback',
         builder: (context, state) => const FeedbackScreen(),
+      ),
+      GoRoute(
+        path: '/app-logs',
+        builder: (context, state) => const AppLogsScreen(),
       ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,

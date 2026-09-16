@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../features/projects/projects_provider.dart';
 import '../core/providers/core_providers.dart';
 import '../core/providers/scaffold_key_provider.dart';
+import '../core/providers/app_logger_provider.dart';
 
 class SupaAppBarSwitcher extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
@@ -24,11 +25,17 @@ class SupaAppBarSwitcher extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final projectsState = ref.watch(projectsProvider);
     final activeProject = ref.watch(activeProjectProvider).value;
+    final hasUnreadError = ref.watch(appLoggerProvider).hasUnreadError;
 
     return AppBar(
       backgroundColor: backgroundColor,
       leading: IconButton(
-        icon: const Icon(Icons.menu),
+        icon: Badge(
+          isLabelVisible: hasUnreadError,
+          backgroundColor: Colors.redAccent,
+          smallSize: 8,
+          child: const Icon(Icons.menu),
+        ),
         onPressed: () {
           ref.read(rootScaffoldKeyProvider).currentState?.openDrawer();
         },
@@ -40,19 +47,25 @@ class SupaAppBarSwitcher extends ConsumerWidget implements PreferredSizeWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  activeProject?.name ?? 'Select Project',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 12, color: AppColors.supaGreen),
-                ),
-              ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    activeProject?.name ?? 'Select Project',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 12, color: AppColors.supaGreen),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
             Icon(Icons.arrow_drop_down, size: 20, color: AppColors.textMuted),
           ],

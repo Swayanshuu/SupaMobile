@@ -5,6 +5,8 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/supa_card.dart';
 import '../../widgets/supa_app_bar_switcher.dart';
 import '../projects/projects_provider.dart';
+import 'logs_provider.dart';
+import 'package:intl/intl.dart';
 
 class AuditLogsScreen extends ConsumerWidget {
   final String projectRef;
@@ -31,7 +33,7 @@ class AuditLogsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             _buildLogFilters(context),
             const SizedBox(height: 16),
-            _buildLogsList(context),
+            _buildLogsList(context, ref),
           ],
         ),
       ),
@@ -71,25 +73,42 @@ class AuditLogsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLogsList(BuildContext context) {
-    // Mock audit logs
-    final logs = [
-      {'user': 'Admin (You)', 'action': 'updated', 'target': 'Table "users"', 'time': '2m ago', 'icon': Icons.edit_outlined},
-      {'user': 'System', 'action': 'backup', 'target': 'Daily Postgres snapshot', 'time': '4h ago', 'icon': Icons.backup_outlined},
-      {'user': 'Admin (You)', 'action': 'deployed', 'target': 'Edge Function "payment-hook"', 'time': '6h ago', 'icon': Icons.bolt},
-      {'user': 'Support Manager', 'action': 'created', 'target': 'RLS Policy for "orders"', 'time': '1d ago', 'icon': Icons.security_outlined},
-      {'user': 'Admin (You)', 'action': 'invited', 'target': 'dev@example.com', 'time': '2d ago', 'icon': Icons.person_add_outlined},
-    ];
+  Widget _buildLogsList(BuildContext context, WidgetRef ref) {
+    final logsAsync = ref.watch(logsProvider((projectRef: projectRef, collection: 'postgres')));
 
-    return Column(
-      children: logs.map((log) => _buildLogItem(context, log)).toList(),
+    return logsAsync.when(
+      data: (logs) {
+        if (logs.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Center(child: Text('No audit logs found.')),
+          );
+        }
+        return Column(
+          children: logs.map((log) => _buildLogItem(context, log)).toList(),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text('Error: $e')),
     );
   }
 
-  Widget _buildLogItem(BuildContext context, Map<String, dynamic> log) {
+  Widget _buildLogItem(BuildContext context, dynamic logData) {
+    final log = logData as Map<String, dynamic>;
+    final timeStr = log['time'] ?? '';
+    final msg = log['msg'] ?? '';
+    final query = log['query'] ?? msg;
+    final userName = log['user_name'] ?? 'System';
+    
+    DateTime? time;
+    if (timeStr.isNotEmpty) {
+      time = DateTime.tryParse(timeStr);
+    }
+    final displayTime = time != null ? DateFormat('MMM d, h:mm a').format(time) : 'Unknown time';
+
     return GestureDetector(
       onLongPress: () {
-        Clipboard.setData(ClipboardData(text: '${log['user']} ${log['action']} ${log['target']}'));
+        Clipboard.setData(ClipboardData(text: '$userName executed $query'));
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Log copied to clipboard')));
       },
       child: Padding(
@@ -104,7 +123,7 @@ class AuditLogsScreen extends ConsumerWidget {
                   color: AppColors.bgOverlay,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(log['icon'] as IconData, size: 18, color: AppColors.textMuted),
+                child: Icon(Icons.storage, size: 18, color: AppColors.textMuted),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -115,20 +134,18 @@ class AuditLogsScreen extends ConsumerWidget {
                       text: TextSpan(
                         style: TextStyle(fontSize: 13, color: AppColors.textPrimary, fontFamily: 'Inter'),
                         children: [
-                          TextSpan(text: log['user'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: ' '),
-                          TextSpan(text: log['action'] as String),
-                          const TextSpan(text: ' '),
-                          TextSpan(text: log['target'] as String, style: TextStyle(color: AppColors.supaGreen)),
+                          TextSpan(text: userName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const TextSpan(text: ' executed query'),
                         ],
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(log['time'] as String, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    Text(query, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontFamily: 'JetBrains Mono')),
+                    const SizedBox(height: 4),
+                    Text(displayTime, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, size: 16, color: AppColors.textMuted),
             ],
           ),
         ),

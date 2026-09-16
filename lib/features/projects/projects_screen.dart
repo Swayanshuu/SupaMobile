@@ -22,38 +22,8 @@ class ProjectsScreen extends ConsumerWidget {
 
     return Scaffold(
       drawer: const SupaDrawer(),
-      appBar: SupaAppBarSwitcher(
+      appBar: const SupaAppBarSwitcher(
         title: 'Projects',
-        actions: [
-          if (isPro)
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(right: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.supaGreen.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppColors.supaGreen.withOpacity(0.3)),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.star_rounded, size: 14, color: AppColors.supaGreen),
-                    SizedBox(width: 4),
-                    Text(
-                      'PRO',
-                      style: TextStyle(
-                        color: AppColors.supaGreen,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(projectsProvider.future),

@@ -15,12 +15,7 @@ class SupportSupaAndroidCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [
-              AppColors.supaGreen.withOpacity(0.1),
-              Colors.purpleAccent.withOpacity(0.1),
-            ],
-          ),
+          color: AppColors.supaGreen.withOpacity(0.05),
           border: Border.all(color: AppColors.supaGreen.withOpacity(0.2)),
         ),
         child: Row(
@@ -38,7 +33,7 @@ class SupportSupaAndroidCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Support SupaAndroid', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  const Text('Support Supamobile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   Text('Help us keep the project free forever.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                 ],
               ),

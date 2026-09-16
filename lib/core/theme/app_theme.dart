@@ -94,19 +94,11 @@ class AppTheme {
 
   static TextStyle get codeStyle => GoogleFonts.jetBrainsMono(color: AppColors.supaGreen);
 
-  // Background Helper for Greenish Black Gradient in Dark Mode
+  // Background Helper for Solid Background
   static Widget buildBackground({required Widget child, required BuildContext context}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark 
-            ? [const Color(0xFF0F0F0F), const Color(0xFF0A1F16)] 
-            : [const Color(0xFFF8F9FA), const Color(0xFFE8F5E9)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF8F9FA),
       child: child,
     );
   }

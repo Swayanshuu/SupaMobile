@@ -4,6 +4,7 @@ import '../../core/api/analytics_api.dart';
 import '../../core/models/api_usage_point.dart';
 import '../../core/providers/analytics_providers.dart';
 import '../../core/providers/core_providers.dart';
+import '../../core/providers/app_logger_provider.dart';
 
 // Definitive, non-generated provider to maintain build-stability.
 final dashboardUsageProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, projectRef) async {
@@ -35,19 +36,17 @@ final dashboardUsageProvider = FutureProvider.family<Map<String, dynamic>, Strin
         break;
     }
 
-    // 2. Fetch high-fidelity metadata parallelly
+    final logger = ref.read(appLoggerProvider.notifier);
+
     final results = await Future.wait([
-      projectApi.getAuthUserCount().catchError((e, s) => 0),
-      if (activeProject != null) api.getOrgUsage(orgSlug: activeProject.organizationId).catchError((e, s) => <String, Map<String, dynamic>>{}) 
-      else Future.value(<String, Map<String, dynamic>>{}),
-      api.getProjectInfrastructure(projectRef: projectRef).catchError((e, s) => <String, dynamic>{}),
-      api.getProjectAddons(projectRef: projectRef).catchError((e, s) => <dynamic>[]),
+      projectApi.getAuthUserCount().catchError((e, s) { logger.error('Failed to fetch user count', e); return 0; }),
+      api.getProjectInfrastructure(projectRef: projectRef).catchError((e, s) { logger.error('Failed to fetch infrastructure', e); return <String, dynamic>{}; }),
+      api.getProjectAddons(projectRef: projectRef).catchError((e, s) { logger.error('Failed to fetch addons', e); return <Map<String, dynamic>>[]; }),
     ]);
 
     final userCount = results[0] as int;
-    final orgUsage = results[1] as Map<String, Map<String, dynamic>>;
-    final infra = results[2] as Map<String, dynamic>;
-    final addons = results[3] as List<dynamic>;
+    final infra = results[1] as Map<String, dynamic>;
+    final addons = results[2] as List<dynamic>;
 
     // 3. Extract Infrastructure Details
     final region = infra['region'] ?? 'Unknown';
@@ -105,7 +104,7 @@ final dashboardUsageProvider = FutureProvider.family<Map<String, dynamic>, Strin
       'realtime_messages': totalRt,
       'total_requests': totalReq,
       'total_users': userCount,
-      'total_egress': _formatBytes(orgUsage['egress']?['usage']),
+      'total_egress': 'N/A',
       'db_connections': 5, // Fallback placeholder
       'infra': {
         'region': region,
@@ -119,10 +118,10 @@ final dashboardUsageProvider = FutureProvider.family<Map<String, dynamic>, Strin
       'realtime_messages_trend': points.map((p) => p.realtimeRequests.toDouble()).toList(),
       'recent_activity': allLogs.take(8).toList(),
       'progress': {
-        'db': _calculateProgress(totalDb, (orgUsage['db_egress']?['limit'] ?? 50000).toInt()),
-        'auth': _calculateProgress(totalAuth, (orgUsage['auth_maus']?['limit'] ?? 50000).toInt()),
-        'storage': _calculateProgress(totalStorage, (orgUsage['storage_egress']?['limit'] ?? 50000).toInt()),
-        'realtime': _calculateProgress(totalRt, (orgUsage['realtime_messages']?['limit'] ?? 200000).toInt()),
+        'db': _calculateProgress(totalDb, 50000),
+        'auth': _calculateProgress(totalAuth, 50000),
+        'storage': _calculateProgress(totalStorage, 50000),
+        'realtime': _calculateProgress(totalRt, 200000),
         'total': _calculateProgress(totalReq, 100000),
       }
     };

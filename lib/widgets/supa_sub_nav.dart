@@ -34,7 +34,7 @@ class SupaSubNav extends StatelessWidget implements PreferredSizeWidget {
             child: InkWell(
               onTap: () {
                 if (!isSelected) {
-                  context.go(item.route);
+                  context.push(item.route);
                 }
               },
               child: Container(

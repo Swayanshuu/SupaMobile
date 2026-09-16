@@ -11,12 +11,7 @@ final logsProvider = FutureProvider.family<List<dynamic>, ({String projectRef, S
   // Map user-friendly tab names to Supabase collection IDs
   final String collectionId = _mapToCollectionId(arg.collection);
 
-  try {
-    return await api.getLogs(arg.projectRef, collectionId);
-  } catch (e) {
-    // Fallback to high-quality mock logs if API fails or is restricted
-    return _generateMockLogs(arg.collection);
-  }
+  return api.getLogs(arg.projectRef, collectionId);
 });
 
 String _mapToCollectionId(String tabName) {

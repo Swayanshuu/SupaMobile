@@ -176,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Enter your Personal Access Token from supabase.com/dashboard/account/tokens',
+                  'Enter your Experimental Access Token from supabase.com/dashboard/account/tokens',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 14,
@@ -185,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 const SizedBox(height: 24),
                 SupaTextField(
-                  label: 'Personal Access Token',
+                  label: 'Experimental Access Token',
                   placeholder: 'sbp_...',
                   controller: _patController,
                   isPassword: true,

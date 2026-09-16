@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/supa_drawer.dart';
-import '../../widgets/mesh_gradient_background.dart';
 import '../../widgets/supa_button.dart';
 
 class FeedbackScreen extends ConsumerWidget {
@@ -33,7 +32,6 @@ class FeedbackScreen extends ConsumerWidget {
       drawer: const SupaDrawer(),
       body: Stack(
         children: [
-          const MeshGradientBackground(),
           SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 120, 24, 48),
             child: Column(
