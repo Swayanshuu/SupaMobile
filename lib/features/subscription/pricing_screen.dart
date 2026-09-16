@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
-import '../../widgets/mesh_gradient_background.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PricingScreen extends ConsumerWidget {
   const PricingScreen({super.key});
@@ -11,13 +11,12 @@ class PricingScreen extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('App Status', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('App Status', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Stack(
         children: [
-          const MeshGradientBackground(),
           Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -38,7 +37,7 @@ class PricingScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       letterSpacing: -1,
                     ),
                   ),

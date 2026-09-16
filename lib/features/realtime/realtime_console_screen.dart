@@ -6,7 +6,6 @@ import '../../widgets/supa_app_bar_switcher.dart';
 import '../../widgets/supa_card.dart';
 import '../../widgets/supa_button.dart';
 import '../../widgets/supa_text_field.dart';
-import '../../widgets/mesh_gradient_background.dart';
 
 import '../../core/providers/core_providers.dart';
 
@@ -87,7 +86,6 @@ class _RealtimeConsoleScreenState extends ConsumerState<RealtimeConsoleScreen> {
       ),
       body: Stack(
         children: [
-          const MeshGradientBackground(),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
             child: Column(

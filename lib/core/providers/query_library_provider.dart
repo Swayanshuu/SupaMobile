@@ -24,11 +24,27 @@ class SavedQuery {
   }
 }
 
-final savedQueriesProvider = StreamProvider<List<SavedQuery>>((ref) {
-  return Stream.value(ref.watch(_inMemoryQueriesProvider));
-});
+class InMemoryQueriesNotifier extends Notifier<List<SavedQuery>> {
+  @override
+  List<SavedQuery> build() => [];
 
-final _inMemoryQueriesProvider = StateProvider<List<SavedQuery>>((ref) => []);
+  void add(SavedQuery query) {
+    state = [...state, query];
+  }
+
+  void remove(String id) {
+    state = state.where((q) => q.id != id).toList();
+  }
+}
+
+final inMemoryQueriesProvider =
+    NotifierProvider<InMemoryQueriesNotifier, List<SavedQuery>>(
+      InMemoryQueriesNotifier.new,
+    );
+
+final savedQueriesStreamProvider = StreamProvider<List<SavedQuery>>((ref) {
+  return Stream.value(ref.watch(inMemoryQueriesProvider));
+});
 
 class SavedQueriesNotifier extends Notifier<void> {
   @override

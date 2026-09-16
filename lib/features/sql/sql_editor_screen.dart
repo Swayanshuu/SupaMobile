@@ -4,8 +4,9 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/supa_app_bar_switcher.dart';
 import '../../widgets/supa_text_field.dart';
 import '../../widgets/supa_button.dart';
-import '../../widgets/mesh_gradient_background.dart';
+import '../../widgets/supa_drawer.dart';
 import '../../widgets/supa_card.dart';
+import '../tables/tables_provider.dart';
 import 'sql_editor_provider.dart';
 
 class SqlEditorScreen extends ConsumerStatefulWidget {
@@ -127,6 +128,63 @@ class _SqlEditorScreenState extends ConsumerState<SqlEditorScreen> {
     );
   }
 
+  void _showTablesList() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.bgOverlay,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Consumer(
+        builder: (context, ref, _) {
+          final tablesAsync = ref.watch(tableListProvider(widget.projectRef));
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.table_view_rounded, color: AppColors.supaGreen),
+                    const SizedBox(width: 12),
+                    Text('Insert Table Query', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: tablesAsync.when(
+                  data: (tables) {
+                    if (tables.isEmpty) {
+                      return Center(child: Text('No tables found', style: TextStyle(color: AppColors.textMuted)));
+                    }
+                    return ListView.builder(
+                      itemCount: tables.length,
+                      itemBuilder: (context, index) {
+                        final tableName = tables[index]['table_name'] as String;
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          leading: Icon(Icons.table_rows_rounded, color: AppColors.textMuted, size: 20),
+                          title: Text(tableName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('SELECT * FROM "$tableName" LIMIT 10;', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                          onTap: () {
+                            _queryController.text = 'SELECT * FROM "$tableName" LIMIT 10;';
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    );
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error loading tables')),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final resultNotifier = ref.watch(sqlResultProvider);
@@ -138,6 +196,11 @@ class _SqlEditorScreenState extends ConsumerState<SqlEditorScreen> {
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
+            icon: Icon(Icons.table_view_rounded, color: AppColors.textPrimary),
+            onPressed: _showTablesList,
+            tooltip: 'Insert Table',
+          ),
+          IconButton(
             icon: const Icon(Icons.bookmarks_outlined, color: AppColors.supaGreen),
             onPressed: _showSavedQueries,
             tooltip: 'Saved Queries',
@@ -146,7 +209,6 @@ class _SqlEditorScreenState extends ConsumerState<SqlEditorScreen> {
       ),
       body: Stack(
         children: [
-          const MeshGradientBackground(),
           Column(
             children: [
               const SizedBox(height: 100),
@@ -277,15 +339,24 @@ class _SqlEditorScreenState extends ConsumerState<SqlEditorScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.table_rows_rounded, color: Colors.blueAccent, size: 20),
-                const SizedBox(width: 8),
-                Text('RESULTS (${displayRows.length} rows)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              ],
+            Expanded(
+              child: Row(
+                children: [
+                  const Icon(Icons.table_rows_rounded, color: Colors.blueAccent, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'RESULTS (${displayRows.length} rows)', 
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             SizedBox(
-              width: 200,
+              width: 150,
               height: 36,
               child: TextField(
                 controller: _searchController,

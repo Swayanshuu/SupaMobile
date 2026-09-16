@@ -100,7 +100,7 @@ class _ProjectSettingsScreenState extends ConsumerState<ProjectSettingsScreen> {
                 children: [
                   patAsync.when(
                     data: (token) => _buildSettingItem(
-                      'Personal Access Token',
+                      'Experimental Access Token',
                       token != null ? '••••' + (token.length > 4 ? token.substring(token.length - 4) : token) : 'Not set',
                       isSecret: true,
                       onCopy: token != null ? () => _copyToClipboard(token, 'PAT copied') : null,
@@ -204,7 +204,7 @@ class _ProjectSettingsScreenState extends ConsumerState<ProjectSettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove Access Token?'),
-        content: const Text('This will clear your Personal Access Token. You will need to provide a new one to fetch project metrics.'),
+        content: const Text('This will clear your Experimental Access Token. You will need to provide a new one to fetch project metrics.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(

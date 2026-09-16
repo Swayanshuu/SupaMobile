@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
 import '../features/projects/projects_provider.dart';
 import '../core/providers/core_providers.dart';
+import '../core/providers/app_logger_provider.dart';
 import '../core/services/subscription_service.dart';
 import 'supa_button.dart';
 
@@ -15,6 +16,7 @@ class SupaDrawer extends ConsumerWidget {
     final activeProject = ref.watch(activeProjectProvider).value;
     final projectRef = activeProject?.ref ?? '';
     final themeMode = ref.watch(themeModeProvider);
+    final hasUnreadError = ref.watch(appLoggerProvider).hasUnreadError;
 
     return ListenableBuilder(
       listenable: themeMode,
@@ -61,6 +63,7 @@ class SupaDrawer extends ConsumerWidget {
                 Divider(color: AppColors.borderDefault, height: 1),
                 _buildNavItem(context, Icons.swap_horiz, 'Switch Project List', '/projects'),
                 _buildNavItem(context, Icons.info_outline_rounded, 'About App', '/profile'),
+                _buildNavItem(context, Icons.terminal_rounded, 'App Logs', '/app-logs', showBadge: hasUnreadError),
                 _buildNavItem(context, Icons.forum_outlined, 'Feedback & Requests', '/feedback'),
                 _buildNavItem(context, Icons.volunteer_activism_outlined, 'Support Supamobile', '/support'),
               ],
@@ -124,12 +127,17 @@ class SupaDrawer extends ConsumerWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, IconData icon, String title, String route) {
+  Widget _buildNavItem(BuildContext context, IconData icon, String title, String route, {bool showBadge = false}) {
     final String currentPath = GoRouterState.of(context).uri.toString();
     final bool isSelected = currentPath == route || (route != '/projects' && currentPath.startsWith(route));
 
     return ListTile(
-      leading: Icon(icon, color: isSelected ? AppColors.supaGreen : AppColors.textPrimary, size: 20),
+      leading: Badge(
+        isLabelVisible: showBadge,
+        backgroundColor: Colors.redAccent,
+        smallSize: 8,
+        child: Icon(icon, color: isSelected ? AppColors.supaGreen : AppColors.textPrimary, size: 20),
+      ),
       title: Text(
         title,
         style: TextStyle(
@@ -142,7 +150,9 @@ class SupaDrawer extends ConsumerWidget {
       visualDensity: VisualDensity.compact,
       onTap: () {
         Navigator.pop(context); // Close drawer
-        context.go(route);
+        if (!isSelected) {
+          context.push(route);
+        }
       },
     );
   }

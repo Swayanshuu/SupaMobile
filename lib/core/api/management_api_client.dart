@@ -7,7 +7,7 @@ dynamic _parseJson(String text) => jsonDecode(text);
 
 class ManagementApiClient {
   static const String _baseUrl = 'https://api.supabase.com/v1';
-  final String pat; // Personal Access Token
+  final String pat; // Experimental Access Token
 
   ManagementApiClient({required this.pat});
 

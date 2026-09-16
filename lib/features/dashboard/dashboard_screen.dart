@@ -55,10 +55,17 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              usageState.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => Center(child: Text('Error: $e')),
-                data: (usage) {
+              Builder(
+                builder: (context) {
+                  if (usageState.isLoading && !usageState.hasValue) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (usageState.hasError && !usageState.hasValue) {
+                    return Center(child: Text('Error: ${usageState.error}'));
+                  }
+                  if (!usageState.hasValue) return const SizedBox.shrink();
+                  
+                  final usage = usageState.value!;
                   final progress = usage['progress'] as Map<String, dynamic>;
                   final infra = usage['infra'] ?? {};
                   
@@ -81,7 +88,7 @@ class DashboardScreen extends ConsumerWidget {
                           const TimeRangeSelector(),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 24),
                       const SupportSupaAndroidCard(),
                       const SizedBox(height: 24),
 
@@ -89,14 +96,20 @@ class DashboardScreen extends ConsumerWidget {
                         _buildMultiTokenAlert(context, !hasPat, !hasServiceKey),
 
                       // 5. Six Primary Metrics Grid (2x3)
-                      GridView.count(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        childAspectRatio: 0.9,
-                        children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          int crossAxisCount = 2;
+                          if (constraints.maxWidth > 800) crossAxisCount = 4;
+                          else if (constraints.maxWidth > 550) crossAxisCount = 3;
+                          
+                          return GridView.count(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            childAspectRatio: 0.9,
+                            children: [
                           FlipMetricCard(
                             title: 'Total Requests',
                             value: usage['total_requests'].toString(),
@@ -152,6 +165,8 @@ class DashboardScreen extends ConsumerWidget {
                             chartData: _mapToSpots(usage['database_requests_trend']),
                           ),
                         ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 48),
 
@@ -400,7 +415,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           if (missingPat)
-            _buildMissingItem('Personal Access Token', 'Required for project usage and metrics'),
+            _buildMissingItem('Experimental Access Token', 'Required for project usage and metrics'),
           if (missingServiceKey)
             _buildMissingItem('Service Role Key', 'Required for database management'),
           const SizedBox(height: 16),

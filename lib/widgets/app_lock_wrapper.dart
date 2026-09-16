@@ -89,8 +89,9 @@ class _AppLockWrapperState extends ConsumerState<AppLockWrapper> with WidgetsBin
         return ListenableBuilder(
           listenable: isDonationDismissedNotifier,
           builder: (context, _) {
+            Widget? overlay;
             if (trialState == TrialState.free && !isDonationDismissedNotifier.value) {
-          return Scaffold(
+              overlay = Scaffold(
             backgroundColor: AppColors.bgBase,
             body: Center(
               child: Padding(
@@ -176,10 +177,8 @@ class _AppLockWrapperState extends ConsumerState<AppLockWrapper> with WidgetsBin
               ),
             ),
           );
-        }
-
-        if (biometricsEnabled && !isUnlocked) {
-          return Scaffold(
+        } else if (biometricsEnabled && !isUnlocked) {
+          overlay = Scaffold(
             backgroundColor: AppColors.bgBase,
             body: Center(
               child: Padding(
@@ -218,7 +217,12 @@ class _AppLockWrapperState extends ConsumerState<AppLockWrapper> with WidgetsBin
           );
         }
 
-          return widget.child;
+            return Stack(
+              children: [
+                widget.child,
+                if (overlay != null) Positioned.fill(child: overlay),
+              ],
+            );
         },
       );
     });

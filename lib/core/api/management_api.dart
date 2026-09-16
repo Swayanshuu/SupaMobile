@@ -45,10 +45,7 @@ class ManagementApi {
     };
   }
 
-  Future<Map<String, dynamic>> getOrgUsage(String orgSlug) async {
-    final dynamic data = await _client.get('/organizations/$orgSlug/usage');
-    return data as Map<String, dynamic>;
-  }
+
 
   Future<Map<String, double>> getHostMetrics(String projectRef, String serviceRoleKey) async {
     final response = await http.get(
@@ -120,10 +117,109 @@ class ManagementApi {
   }
 
   Future<List<dynamic>> getLogs(String projectRef, String collection, {String? query}) async {
-    final params = {'collection': collection};
-    if (query != null) params['query'] = query;
+    final end = DateTime.now().toUtc();
+    final start = end.subtract(const Duration(hours: 24)); // Default 24h as per rule
+
+    String sql = '';
+    final whereClause = query != null && query.isNotEmpty ? "AND t.event_message LIKE '%$query%'" : '';
+
+    switch (collection) {
+      case 'auth':
+      case 'auth_logs':
+        sql = '''
+          SELECT
+            DATETIME(timestamp) as time,
+            t.event_message as msg,
+            p.status_code,
+            p.method,
+            p.path
+          FROM auth_logs as t
+          CROSS JOIN UNNEST(t.metadata) as m
+          CROSS JOIN UNNEST(m.request) as p
+          WHERE true $whereClause
+          ORDER BY timestamp DESC
+          LIMIT 100
+        ''';
+        break;
+      case 'database':
+      case 'postgres':
+      case 'postgres_logs':
+        sql = '''
+          SELECT
+            DATETIME(timestamp) as time,
+            t.event_message as msg,
+            p.error_severity,
+            p.user_name,
+            p.query
+          FROM postgres_logs as t
+          CROSS JOIN UNNEST(t.metadata) as m
+          CROSS JOIN UNNEST(m.parsed) as p
+          WHERE true $whereClause
+          ORDER BY timestamp DESC
+          LIMIT 100
+        ''';
+        break;
+      case 'functions':
+      case 'function_logs':
+        sql = '''
+          SELECT
+            DATETIME(timestamp) as time,
+            t.event_message as msg,
+            m.level,
+            m.function_id
+          FROM function_logs as t
+          CROSS JOIN UNNEST(t.metadata) as m
+          WHERE true $whereClause
+          ORDER BY timestamp DESC
+          LIMIT 100
+        ''';
+        break;
+      case 'storage':
+      case 'storage_logs':
+        sql = '''
+          SELECT 
+            DATETIME(timestamp) as time, 
+            t.event_message as msg,
+            r.method, 
+            r.path, 
+            r.status_code
+          FROM storage_logs as t
+          CROSS JOIN UNNEST(t.metadata) as m
+          CROSS JOIN UNNEST(m.request) as r
+          WHERE true $whereClause
+          ORDER BY timestamp DESC 
+          LIMIT 100
+        ''';
+        break;
+      case 'api':
+      case 'edge_logs':
+      case 'postgrest':
+      default:
+        sql = '''
+          SELECT 
+            DATETIME(timestamp) as time,
+            t.event_message as msg,
+            r.method, 
+            r.path, 
+            rsp.status_code
+          FROM edge_logs as t
+          CROSS JOIN UNNEST(t.metadata) as m
+          CROSS JOIN UNNEST(m.request) as r
+          CROSS JOIN UNNEST(m.response) as rsp
+          WHERE true $whereClause
+          ORDER BY timestamp DESC 
+          LIMIT 100
+        ''';
+        break;
+    }
+
+    final params = {
+      'iso_timestamp_start': start.toIso8601String(),
+      'iso_timestamp_end': end.toIso8601String(),
+      'sql': sql,
+    };
     
-    final Map<String, dynamic> data = await _client.get('/projects/$projectRef/logs', queryParams: params);
+    final Map<String, dynamic> data = await _client.get('/projects/$projectRef/analytics/endpoints/logs.all', queryParams: params);
     return data['result'] ?? [];
   }
 }

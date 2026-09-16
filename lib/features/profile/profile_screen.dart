@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/supa_drawer.dart';
-import '../../widgets/mesh_gradient_background.dart';
-
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -19,7 +17,6 @@ class ProfileScreen extends ConsumerWidget {
       drawer: const SupaDrawer(),
       body: Stack(
         children: [
-          const MeshGradientBackground(),
           SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 120, 24, 48),
             child: Column(
@@ -124,14 +121,7 @@ class ProfileScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.bgSurface,
-            AppColors.bgBase,
-          ],
-        ),
+        color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderDefault),
       ),
@@ -172,7 +162,7 @@ class ProfileScreen extends ConsumerWidget {
         _buildAnalogyStep(
           icon: Icons.key_rounded,
           title: 'The Pipeline (Access Token)',
-          description: 'Your Personal Access Token acts as a direct, secure pipeline. It connects the app straight to your reservoir.',
+          description: 'Your Experimental Access Token acts as a direct, secure pipeline. It connects the app straight to your reservoir.',
         ),
         _buildArrow(),
         _buildAnalogyStep(

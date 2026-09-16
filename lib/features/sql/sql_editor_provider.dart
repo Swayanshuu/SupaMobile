@@ -21,7 +21,7 @@ class SqlEditorActions {
     try {
       final pat = await ref.read(patProvider.future);
       if (pat == null || pat.isEmpty) {
-        throw Exception('MANAGEMENT_ERROR: Personal Access Token (PAT) not found. Please configure it in Project Settings.');
+        throw Exception('MANAGEMENT_ERROR: Experimental Access Token (PAT) not found. Please configure it in Project Settings.');
       }
 
       final api = ref.read(managementApiProvider);

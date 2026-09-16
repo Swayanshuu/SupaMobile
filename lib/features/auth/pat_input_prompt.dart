@@ -34,7 +34,7 @@ void showPatInputPrompt(BuildContext context, WidgetRef ref) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Personal Access Token',
+                'Experimental Access Token',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -66,7 +66,7 @@ void showPatInputPrompt(BuildContext context, WidgetRef ref) {
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Personal Access Token saved')),
+                  const SnackBar(content: Text('Experimental Access Token saved')),
                 );
               }
             },

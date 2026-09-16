@@ -124,7 +124,7 @@ class AuthStatisticsScreen extends ConsumerWidget {
           lineBarsData: [
             LineChartBarData(
               spots: spots,
-              isCurved: true,
+              isCurved: false,
               color: AppColors.supaGreen,
               barWidth: 3,
               isStrokeCapRound: true,

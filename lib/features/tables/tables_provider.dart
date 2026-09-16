@@ -9,7 +9,7 @@ import '../../core/providers/analytics_providers.dart';
 final tableListProvider = FutureProvider.family<List<dynamic>, String>((ref, projectRef) async {
   final pat = await ref.watch(patProvider.future);
   if (pat == null || pat.isEmpty) {
-    throw Exception('MANAGEMENT_ERROR: Personal Access Token (PAT) not found. Please configure it in Project Settings.');
+    throw Exception('MANAGEMENT_ERROR: Experimental Access Token (PAT) not found. Please configure it in Project Settings.');
   }
 
   final api = ref.watch(managementApiProvider);

@@ -253,34 +253,31 @@ class _FlipMetricCardState extends State<FlipMetricCard> with SingleTickerProvid
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: LineChart(
-              LineChartData(
+            child: BarChart(
+              BarChartData(
                 gridData: const FlGridData(show: false),
-                titlesData: const FlTitlesData(show: false),
                 borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: widget.chartData,
-                    isCurved: true,
-                    color: widget.color,
-                    barWidth: 2,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: widget.color.withOpacity(0.1),
-                    ),
-                  ),
-                ],
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        return LineTooltipItem(
-                          spot.y.toStringAsFixed(1),
-                          TextStyle(color: widget.color, fontWeight: FontWeight.bold, fontSize: 10),
-                        );
-                      }).toList();
+                titlesData: const FlTitlesData(show: false),
+                barGroups: widget.chartData.map((spot) {
+                  return BarChartGroupData(
+                    x: spot.x.toInt(),
+                    barRods: [
+                      BarChartRodData(
+                        toY: spot.y,
+                        color: widget.color,
+                        width: 12,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+                      ),
+                    ],
+                  );
+                }).toList(),
+                barTouchData: BarTouchData(
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      return BarTooltipItem(
+                        rod.toY.toStringAsFixed(0),
+                        TextStyle(color: widget.color, fontWeight: FontWeight.bold, fontSize: 12),
+                      );
                     },
                   ),
                 ),
